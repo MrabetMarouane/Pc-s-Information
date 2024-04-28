@@ -1,45 +1,63 @@
+#Merci d'installer les bibliotheques necéssaires (pip install + nom de la bibliotheque)
+
 from PySide6 import QtWidgets
-
-
-
-
 import socket
+import urllib.request
+import uuid
+import platform
+
+# Récupérer l'adresse IP locale
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect(('8.8.8.8', 1))
 local_ip_address = s.getsockname()[0]
 
-
-
-import urllib.request
-
+# Récupérer l'adresse IP externe
 external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
-print(external_ip)
 
-import uuid
+# Récupérer l'adresse MAC
 mac_address = uuid.getnode()
-mac_address_hex = ':'.join(['{:02x}'.format((mac_address >> elements) & 0xff) for elements in range(0,8*6,8)][::-1])
+mac_address_hex = ':'.join(['{:02x}'.format((mac_address >> elements) & 0xff) for elements in range(0, 8*6, 8)][::-1])
 
-import platform
+# Récupérer le nom du système d'exploitation
 os = platform.system()
 
 
-
-
-
-# Définition de la classe MaFenetre qui hérite de QDialog
 class MaFenetre(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
-        self.resize(300, 300)
-        self.setWindowTitle("Marouane@Mrabet") # Définit le titre de la fenêtre de dialogue
-        self.create_layouts() # Crée les mises en page
-        self.create_widgets() # Crée les widgets
-        self.addWigets_to_layouts() # Ajoute les widgets aux mises en page
+        self.setWindowTitle("Computer Information")
+        self.setFixedSize(400, 200)
+        self.setStyleSheet("background-color: #f0f0f0;")
 
+        self.create_widgets()
+        self.create_layouts()
+        self.add_widgets_to_layouts()
 
+        self.set_data()
 
+    def create_widgets(self):
+        self.lbl_title = QtWidgets.QLabel('Computer Information')
+        self.lbl_title.setStyleSheet("font-size: 20px; font-weight: bold;")
 
+        self.lbl_hostname = QtWidgets.QLabel('Hostname:')
+        self.lbl_LAN = QtWidgets.QLabel('LAN IP Address:')
+        self.lbl_MAC = QtWidgets.QLabel('MAC Address:')
+        self.lbl_WAN = QtWidgets.QLabel('WAN IP Address:')
+        self.lbl_System = QtWidgets.QLabel('System:')
 
+        self.LEdit_hostname = QtWidgets.QLineEdit()
+        self.LEdit_hostname.setReadOnly(True)
+        self.LEdit_LAN = QtWidgets.QLineEdit()
+        self.LEdit_LAN.setReadOnly(True)
+        self.LEdit_MAC = QtWidgets.QLineEdit()
+        self.LEdit_MAC.setReadOnly(True)
+        self.LEdit_WAN = QtWidgets.QLineEdit()
+        self.LEdit_WAN.setReadOnly(True)
+        self.LEdit_System = QtWidgets.QLineEdit()
+        self.LEdit_System.setReadOnly(True)
+
+        self.btn_Exit = QtWidgets.QPushButton("Exit")
+        self.btn_Exit.clicked.connect(self.close)
 
     def create_layouts(self):
         self.layoutV = QtWidgets.QVBoxLayout()
@@ -51,28 +69,7 @@ class MaFenetre(QtWidgets.QDialog):
         self.layoutH5 = QtWidgets.QHBoxLayout()
         self.layoutH6 = QtWidgets.QHBoxLayout()
 
-    def create_widgets(self):
-        self.lbl_title = QtWidgets.QLabel('Computer information :')
-
-        self.lbl_hostname = QtWidgets.QLabel('Hostname\t')
-        self.LEdit_hostname = QtWidgets.QLineEdit()
-
-        self.lbl_LAN = QtWidgets.QLabel('LAN IP Adress\t')
-        self.LEdit_LAN = QtWidgets.QLineEdit()
-
-        self.lbl_MAC = QtWidgets.QLabel('MAC Adress\t')
-        self.LEdit_MAC = QtWidgets.QLineEdit()
-
-        self.lbl_WAN = QtWidgets.QLabel('WAN IP Adress\t')
-        self.LEdit_WAN = QtWidgets.QLineEdit()
-
-        self.lbl_System = QtWidgets.QLabel('System\t\t')
-        self.LEdit_System = QtWidgets.QLineEdit()
-
-        self.btn_Exit = QtWidgets.QPushButton("Exit")
-
-    def addWigets_to_layouts(self):
-
+    def add_widgets_to_layouts(self):
         self.layoutH0.addWidget(self.lbl_title)
 
         self.layoutH1.addWidget(self.lbl_hostname)
@@ -92,8 +89,6 @@ class MaFenetre(QtWidgets.QDialog):
 
         self.layoutH6.addWidget(self.btn_Exit)
 
-
-
         self.layoutV.addLayout(self.layoutH0)
         self.layoutV.addLayout(self.layoutH1)
         self.layoutV.addLayout(self.layoutH2)
@@ -103,6 +98,7 @@ class MaFenetre(QtWidgets.QDialog):
         self.layoutV.addLayout(self.layoutH6)
         self.setLayout(self.layoutV)
 
+    def set_data(self):
         self.LEdit_hostname.setText(platform.node())
         print(platform.node())
 
@@ -113,14 +109,15 @@ class MaFenetre(QtWidgets.QDialog):
         print(f"The MAC adress is :{mac_address_hex}")
 
         self.LEdit_WAN.setText(external_ip)
+        print(f"The MAC adress is :{external_ip}")
+
 
         self.LEdit_System.setText(os)
         print("Your OS is : ", os)
-
-
 
 
 app = QtWidgets.QApplication([])
 form = MaFenetre()
 form.show()
 app.exec()
+
